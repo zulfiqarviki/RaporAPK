@@ -35,3 +35,14 @@ class UserOut(UserBase):
 class TokenOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class TeacherCreate(UserBase):
+    password: str
+
+
+class TeacherUpdate(BaseModel):
+    nip: str | None = None
+    name: str | None = None
+    password: str | None = None
+    is_active: bool | None = None
