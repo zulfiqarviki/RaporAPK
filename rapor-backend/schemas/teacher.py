@@ -5,6 +5,11 @@ class TeacherCreate(BaseModel):
     name: str
     password: str
 
+
+class LoginRequest(BaseModel):
+    nip: str
+    password: str
+    
 class TeacherOut(BaseModel):
     id: int
     nip: str

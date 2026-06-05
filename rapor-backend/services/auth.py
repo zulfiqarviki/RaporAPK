@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from models.teacher import Teacher
+from models.user import Teacher
 from schemas.teacher import TeacherCreate, TokenOut
 from core.security import hash_password, verify_password, create_access_token
 
