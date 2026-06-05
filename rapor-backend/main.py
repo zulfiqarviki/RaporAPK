@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 import models
 from database.database import engine, Base, SessionLocal
-from routers import auth
+from routers import auth, admin
 from services.seed import seed_default_admin
 
 Base.metadata.create_all(bind=engine)
@@ -22,6 +22,7 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
+app.include_router(admin.router)
 
 @app.get("/")
 def root():
