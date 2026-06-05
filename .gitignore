@@ -10,6 +10,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.pyc
+*.pyo
+*.pyd
 
 # Database
 *.db
@@ -22,3 +24,10 @@ __pycache__/
 .idea/
 .vscode/
 *.swp
+
+# Distribution
+dist/
+*.egg-info/
+
+# Testing
+.pytest_cache/
