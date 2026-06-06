@@ -11,7 +11,8 @@ from routers import (
     students,
     scores,
     results,
-    analytics
+    analytics,
+    excel
 )
 
 
@@ -39,6 +40,7 @@ app.include_router(students.router)
 app.include_router(scores.router)
 app.include_router(results.router)
 app.include_router(analytics.router)
+app.include_router(excel.router)
 
 @app.get("/")
 def root():
