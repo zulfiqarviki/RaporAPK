@@ -58,7 +58,7 @@ def get_grade_table_detail(
     )
 
 
-@router.put("/{grade_table_id}", response_model=GradeTableOut)
+@router.patch("/{grade_table_id}", response_model=GradeTableOut)
 def update_existing_grade_table(
     grade_table_id: int,
     grade_table_data: GradeTableUpdate,

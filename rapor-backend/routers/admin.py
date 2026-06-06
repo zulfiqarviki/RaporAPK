@@ -37,7 +37,7 @@ def create_teacher_account(
     return create_teacher(user_data=user_data, db=db)
 
 
-@router.put("/teachers/{teacher_id}", response_model=UserOut)
+@router.patch("/teachers/{teacher_id}", response_model=UserOut)
 def update_teacher_account(
     teacher_id: int,
     user_data: TeacherUpdate,
