@@ -437,24 +437,25 @@ def _compare_students_by_final_grade(
 
     score_map = _get_score_map(grade_table_id, db)
 
-    comparison_items = [
-        StudentComparisonItemOut(
-            student_id=result.student_id,
-            student_name=result.student_name,
-            student_number=result.student_number,
-            value=result.final_grade,
-            is_complete=result.is_complete,
-            missing_components=result.missing_components,
+    comparison_items: list[StudentComparisonItemOut] = []
+
+    for student in students:
+        result = _calculate_final_grade_for_student(
+            student=student,
+            components=components,
+            score_map=score_map,
         )
-        for result in [
-            _calculate_final_grade_for_student(
-                student=student,
-                components=components,
-                score_map=score_map,
+
+        comparison_items.append(
+            StudentComparisonItemOut(
+                student_id=result.student_id,
+                student_name=result.student_name,
+                student_number=result.student_number,
+                value=result.final_grade,
+                is_complete=result.is_complete,
+                missing_components=result.missing_components,
             )
-            for student in students
-        ]
-    ]
+        )
 
     return StudentComparisonOut(
         grade_table_id=grade_table_id,
@@ -581,8 +582,22 @@ def _get_component_distribution(
         .all()
     )
 
-    score_values = [score.score for score in scores]
-    missing_count = len(students) - len(score_values)
+    score_map = {
+        score.student_id: score.score
+        for score in scores
+    }
+
+    score_values: list[float] = []
+    missing_count = 0
+
+    for student in students:
+        score_value = score_map.get(student.id)
+
+        if score_value is None:
+            score_values.append(0.0)
+            missing_count += 1
+        else:
+            score_values.append(score_value)
 
     buckets = _count_distribution(
         values=score_values,
