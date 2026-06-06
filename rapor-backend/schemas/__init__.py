@@ -5,11 +5,17 @@ from .student import StudentCreate, StudentOut, StudentUpdate
 from .score import ScoreCreate, ScoreOut, ScoreUpdate
 from .result import ComponentScoreOut, GradeTableResultOut, StudentResultOut
 from .analytics import (
-    ComponentAverageOut,
-    ComponentAveragesOut,
+    AnalyticsSummaryOut,
+    ComponentSummaryOut,
+    DistributionBucketOut,
+    DistributionOut,
+    DistributionRange,
+    DistributionRequest,
     StudentComparisonItemOut,
     StudentComparisonOut,
     StudentComparisonRequest,
+    StudentComponentScoreOut,
+    StudentFinalGradeOut,
     StudentProgressOut,
     StudentProgressPointOut,
 )
