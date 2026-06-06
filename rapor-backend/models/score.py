@@ -1,20 +1,27 @@
-from pydantic import BaseModel, ConfigDict, Field
+from sqlalchemy import CheckConstraint, Column, Float, ForeignKey, Integer, UniqueConstraint
+from sqlalchemy.orm import relationship
+
+from database.database import Base
 
 
-class ScoreCreate(BaseModel):
-    student_id: int
-    component_id: int
-    score: float = Field(ge=0, le=100)
+class Score(Base):
+    __tablename__ = "scores"
 
+    __table_args__ = (
+        CheckConstraint("score >= 0 AND score <= 100", name="check_score_range"),
+        UniqueConstraint(
+            "student_id",
+            "component_id",
+            name="unique_score_per_student_component",
+        ),
+    )
 
-class ScoreUpdate(BaseModel):
-    score: float | None = Field(default=None, ge=0, le=100)
+    id = Column(Integer, primary_key=True, index=True)
 
+    score = Column(Float, nullable=False)
 
-class ScoreOut(BaseModel):
-    id: int
-    student_id: int
-    component_id: int
-    score: float
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
+    component_id = Column(Integer, ForeignKey("grade_components.id"), nullable=False)
 
-    model_config = ConfigDict(from_attributes=True)
+    student = relationship("Student", back_populates="scores")
+    component = relationship("GradeComponent", back_populates="scores")
