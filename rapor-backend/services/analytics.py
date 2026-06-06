@@ -92,8 +92,8 @@ def _calculate_final_grade_for_student(
         score_value = score_map.get((student.id, component.id))
 
         if score_value is None:
-            missing_components.append(component.name)
             effective_score = 0.0
+            missing_components.append(component.name)
         else:
             effective_score = score_value
 
@@ -170,10 +170,10 @@ def get_analytics_summary(
 
             if score_value is None:
                 effective_score = 0.0
-                is_missing = True
+                is_complete = False
             else:
                 effective_score = score_value
-                is_missing = False
+                is_complete = True
                 filled_scores += 1
 
             component_score_items.append(
@@ -182,7 +182,7 @@ def get_analytics_summary(
                     student_name=student.name,
                     student_number=student.student_number,
                     score=effective_score,
-                    is_missing=is_missing,
+                    is_complete=is_complete,
                 )
             )
 
@@ -277,15 +277,27 @@ def get_student_progress(
     }
 
     progress: list[StudentProgressPointOut] = []
+    missing_components: list[str] = []
 
     for component in components:
+        score_value = score_map.get(component.id)
+
+        if score_value is None:
+            effective_score = 0.0
+            is_complete = False
+            missing_components.append(component.name)
+        else:
+            effective_score = score_value
+            is_complete = True
+
         progress.append(
             StudentProgressPointOut(
                 component_id=component.id,
                 component_name=component.name,
                 weight=component.weight,
                 order_index=component.order_index,
-                score=score_map.get(component.id),
+                score=effective_score,
+                is_complete=is_complete,
             )
         )
 
@@ -295,6 +307,8 @@ def get_student_progress(
         student_id=student.id,
         student_name=student.name,
         student_number=student.student_number,
+        is_complete=len(missing_components) == 0,
+        missing_components=missing_components,
         progress=progress,
     )
 
@@ -400,14 +414,23 @@ def _compare_students_by_component(
     for student in students:
         score_value = score_map.get(student.id)
 
+        if score_value is None:
+            effective_score = 0.0
+            is_complete = False
+            missing_components = [component.name]
+        else:
+            effective_score = score_value
+            is_complete = True
+            missing_components = []
+
         comparison_items.append(
             StudentComparisonItemOut(
                 student_id=student.id,
                 student_name=student.name,
                 student_number=student.student_number,
-                value=score_value,
-                is_complete=score_value is not None,
-                missing_components=[] if score_value is not None else [component.name],
+                value=effective_score,
+                is_complete=is_complete,
+                missing_components=missing_components,
             )
         )
 
@@ -511,14 +534,25 @@ def _get_final_grade_distribution(
 
     score_map = _get_score_map(grade_table_id, db)
 
-    final_grade_values = [
+    final_grade_results = [
         _calculate_final_grade_for_student(
             student=student,
             components=components,
             score_map=score_map,
-        ).final_grade
+        )
         for student in students
     ]
+
+    final_grade_values = [
+        result.final_grade
+        for result in final_grade_results
+    ]
+
+    missing_count = sum(
+        1
+        for result in final_grade_results
+        if not result.is_complete
+    )
 
     buckets = _count_distribution(
         values=final_grade_values,
@@ -532,7 +566,7 @@ def _get_final_grade_distribution(
         component_id=None,
         component_name=None,
         total_counted=len(final_grade_values),
-        missing_count=0,
+        missing_count=missing_count,
         distribution=buckets,
     )
 

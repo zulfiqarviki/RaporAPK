@@ -17,7 +17,7 @@ class StudentComponentScoreOut(BaseModel):
     student_name: str
     student_number: str | None = None
     score: float
-    is_missing: bool = False
+    is_complete: bool
 
 
 class ComponentSummaryOut(BaseModel):
@@ -120,7 +120,8 @@ class StudentProgressPointOut(BaseModel):
     component_name: str
     weight: float
     order_index: int
-    score: float | None = None
+    score: float
+    is_complete: bool
 
 
 class StudentProgressOut(BaseModel):
@@ -129,6 +130,8 @@ class StudentProgressOut(BaseModel):
     student_id: int
     student_name: str
     student_number: str | None = None
+    is_complete: bool
+    missing_components: list[str] = Field(default_factory=list)
     progress: list[StudentProgressPointOut]
 
 
@@ -141,15 +144,15 @@ class StudentComparisonItemOut(BaseModel):
     student_id: int
     student_name: str
     student_number: str | None = None
-    value: float | None = None
-    is_complete: bool | None = None
+    value: float
+    is_complete: bool
     missing_components: list[str] = Field(default_factory=list)
 
 
 class StudentComparisonOut(BaseModel):
     grade_table_id: int
     subject_name: str
-    comparison_type: str
+    comparison_type: Literal["final_grade", "component"]
     component_id: int | None = None
     component_name: str | None = None
     students: list[StudentComparisonItemOut]
