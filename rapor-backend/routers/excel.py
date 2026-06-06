@@ -1,13 +1,14 @@
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from database.database import get_db
 from dependencies.auth_dependency import get_current_user
 from models.user import User
-from services.excel import export_grade_table_to_excel
+from schemas.excel import ExcelImportOut
+from services.excel import export_grade_table_to_excel, import_grade_table_from_excel
 
 
 router = APIRouter(tags=["Excel"])
@@ -36,4 +37,19 @@ def export_grade_table_excel(
         excel_file,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers=headers,
+    )
+
+
+@router.post("/grade-tables/import/excel", response_model=ExcelImportOut)
+def import_grade_table_excel(
+    file: UploadFile = File(...),
+    teacher_id: int | None = Query(default=None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return import_grade_table_from_excel(
+        file=file,
+        current_user=current_user,
+        db=db,
+        teacher_id=teacher_id,
     )
