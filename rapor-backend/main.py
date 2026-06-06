@@ -2,8 +2,18 @@ from fastapi import FastAPI
 
 import models
 from database.database import engine, Base, SessionLocal
-from routers import auth, admin, grade_tables, grade_components, students, scores, results
 from services.seed import seed_default_admin
+from routers import (
+    auth,
+    admin,
+    grade_tables,
+    grade_components,
+    students,
+    scores,
+    results,
+    analytics
+)
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,6 +38,7 @@ app.include_router(grade_components.router)
 app.include_router(students.router)
 app.include_router(scores.router)
 app.include_router(results.router)
+app.include_router(analytics.router)
 
 @app.get("/")
 def root():
