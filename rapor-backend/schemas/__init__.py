@@ -19,3 +19,4 @@ from .analytics import (
     StudentProgressOut,
     StudentProgressPointOut,
 )
+from .excel import ExcelImportOut
