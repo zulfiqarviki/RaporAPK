@@ -1,1 +1,11 @@
-from . import admin, auth, grade_tables, grade_components, students, scores, results, analytics
+from . import (
+    admin, 
+    auth, 
+    grade_tables, 
+    grade_components, 
+    students, 
+    scores, 
+    results, 
+    analytics,
+    excel
+)
