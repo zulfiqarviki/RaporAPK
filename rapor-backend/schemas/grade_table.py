@@ -1,12 +1,10 @@
 from pydantic import BaseModel, ConfigDict
 
-from .grade_component import GradeComponentOut
-from .student import StudentOut
-
 
 class GradeTableCreate(BaseModel):
     subject_name: str
     description: str | None = None
+    teacher_id: int | None = None
 
 
 class GradeTableUpdate(BaseModel):
@@ -19,7 +17,5 @@ class GradeTableOut(BaseModel):
     subject_name: str
     description: str | None = None
     teacher_id: int
-    components: list[GradeComponentOut] = []
-    students: list[StudentOut] = []
 
     model_config = ConfigDict(from_attributes=True)
