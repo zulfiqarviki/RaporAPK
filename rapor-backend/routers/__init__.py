@@ -1,1 +1,1 @@
-from . import admin, auth
+from . import admin, auth, grade_tables
