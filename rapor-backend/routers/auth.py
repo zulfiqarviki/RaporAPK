@@ -8,7 +8,6 @@ from models.user import User
 from schemas.user import TokenOut, UserOut
 from services.auth import login_user
 
-
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
