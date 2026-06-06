@@ -4,3 +4,12 @@ from .grade_component import GradeComponentCreate, GradeComponentOut, GradeCompo
 from .student import StudentCreate, StudentOut, StudentUpdate
 from .score import ScoreCreate, ScoreOut, ScoreUpdate
 from .result import ComponentScoreOut, GradeTableResultOut, StudentResultOut
+from .analytics import (
+    ComponentAverageOut,
+    ComponentAveragesOut,
+    StudentComparisonItemOut,
+    StudentComparisonOut,
+    StudentComparisonRequest,
+    StudentProgressOut,
+    StudentProgressPointOut,
+)
