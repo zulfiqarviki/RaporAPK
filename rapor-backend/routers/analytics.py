@@ -5,14 +5,17 @@ from database.database import get_db
 from dependencies.auth_dependency import get_current_user
 from models.user import User
 from schemas.analytics import (
-    ComponentAveragesOut,
+    AnalyticsSummaryOut,
+    DistributionOut,
+    DistributionRequest,
     StudentComparisonOut,
     StudentComparisonRequest,
     StudentProgressOut,
 )
 from services.analytics import (
     compare_students,
-    get_component_averages,
+    get_analytics_summary,
+    get_distribution,
     get_student_progress,
 )
 
@@ -21,16 +24,34 @@ router = APIRouter(tags=["Analytics"])
 
 
 @router.get(
-    "/grade-tables/{grade_table_id}/analytics/component-averages",
-    response_model=ComponentAveragesOut,
+    "/grade-tables/{grade_table_id}/analytics/summary",
+    response_model=AnalyticsSummaryOut,
 )
-def get_grade_table_component_averages(
+def get_grade_table_analytics_summary(
     grade_table_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return get_component_averages(
+    return get_analytics_summary(
         grade_table_id=grade_table_id,
+        current_user=current_user,
+        db=db,
+    )
+
+
+@router.post(
+    "/grade-tables/{grade_table_id}/analytics/distribution",
+    response_model=DistributionOut,
+)
+def get_grade_table_distribution(
+    grade_table_id: int,
+    distribution_data: DistributionRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return get_distribution(
+        grade_table_id=grade_table_id,
+        distribution_data=distribution_data,
         current_user=current_user,
         db=db,
     )
