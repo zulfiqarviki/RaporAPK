@@ -17,6 +17,7 @@ class StudentComponentScoreOut(BaseModel):
     student_name: str
     student_number: str | None = None
     score: float
+    is_missing: bool = False
 
 
 class ComponentSummaryOut(BaseModel):

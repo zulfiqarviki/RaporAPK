@@ -10,6 +10,7 @@ from schemas.analytics import (
     ComponentSummaryOut,
     DistributionBucketOut,
     DistributionOut,
+    DistributionRange,
     DistributionRequest,
     StudentComparisonItemOut,
     StudentComparisonOut,
@@ -123,7 +124,11 @@ def get_analytics_summary(
 
     components = _get_components(grade_table.id, db)
     students = _get_students(grade_table.id, db)
-    _validate_grade_table_has_data(components, students)
+
+    _validate_grade_table_has_data(
+        components=components,
+        students=students,
+    )
 
     score_map = _get_score_map(grade_table.id, db)
 
@@ -156,7 +161,8 @@ def get_analytics_summary(
     component_summaries: list[ComponentSummaryOut] = []
 
     for component in components:
-        filled_score_items: list[StudentComponentScoreOut] = []
+        component_score_items: list[StudentComponentScoreOut] = []
+        filled_scores = 0
         total_score_with_missing_as_zero = 0.0
 
         for student in students:
@@ -164,33 +170,39 @@ def get_analytics_summary(
 
             if score_value is None:
                 effective_score = 0.0
+                is_missing = True
             else:
                 effective_score = score_value
+                is_missing = False
+                filled_scores += 1
 
-                filled_score_items.append(
-                    StudentComponentScoreOut(
-                        student_id=student.id,
-                        student_name=student.name,
-                        student_number=student.student_number,
-                        score=score_value,
-                    )
+            component_score_items.append(
+                StudentComponentScoreOut(
+                    student_id=student.id,
+                    student_name=student.name,
+                    student_number=student.student_number,
+                    score=effective_score,
+                    is_missing=is_missing,
                 )
+            )
 
             total_score_with_missing_as_zero += effective_score
 
-        filled_scores = len(filled_score_items)
         missing_scores = len(students) - filled_scores
 
-        average_score = round(total_score_with_missing_as_zero / len(students), 2)
+        average_score = round(
+            total_score_with_missing_as_zero / len(students),
+            2,
+        )
 
         highest_score = max(
-            filled_score_items,
+            component_score_items,
             key=lambda item: item.score,
             default=None,
         )
 
         lowest_score = min(
-            filled_score_items,
+            component_score_items,
             key=lambda item: item.score,
             default=None,
         )
@@ -490,7 +502,11 @@ def _get_final_grade_distribution(
 ) -> DistributionOut:
     components = _get_components(grade_table_id, db)
     students = _get_students(grade_table_id, db)
-    _validate_grade_table_has_data(components, students)
+
+    _validate_grade_table_has_data(
+        components=components,
+        students=students,
+    )
 
     score_map = _get_score_map(grade_table_id, db)
 
@@ -526,6 +542,12 @@ def _get_component_distribution(
     distribution_data: DistributionRequest,
     db: Session,
 ) -> DistributionOut:
+    if distribution_data.component_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="component_id is required when target is component",
+        )
+
     component = (
         db.query(GradeComponent)
         .filter(
@@ -581,7 +603,7 @@ def _get_component_distribution(
 
 def _count_distribution(
     values: list[float],
-    ranges: list,
+    ranges: list[DistributionRange],
 ) -> list[DistributionBucketOut]:
     bucket_counts = {
         range_item.label: 0
