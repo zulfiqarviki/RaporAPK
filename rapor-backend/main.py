@@ -1,9 +1,19 @@
 from fastapi import FastAPI
-from database.database import engine, Base
-from models import *
-from routers import auth
+
+import models
+from database.database import engine, Base, SessionLocal
+from routers import auth, admin
+from services.seed import seed_default_admin
 
 Base.metadata.create_all(bind=engine)
+
+
+db = SessionLocal()
+try:
+    seed_default_admin(db)
+finally:
+    db.close()
+
 
 app = FastAPI(
     title="Rapor API",
@@ -12,7 +22,8 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
+app.include_router(admin.router)
 
 @app.get("/")
-def health_check():
+def root():
     return {"message": "Rapor API is running"}
