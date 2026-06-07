@@ -4,6 +4,7 @@ from src.auth.session import get_current_user, init_auth_state, is_authenticated
 from src.pages.dashboard import render_dashboard_page
 from src.pages.login import render_login_page
 from src.ui.layout import render_sidebar
+from src.pages.admin_teachers import render_admin_teachers_page
 
 
 st.set_page_config(
@@ -32,8 +33,7 @@ def main() -> None:
         render_dashboard_page(user)
 
     elif page == "Teacher Accounts":
-        st.title("Teacher Accounts")
-        st.info("Halaman manajemen akun teacher akan dibuat pada langkah berikutnya.")
+        render_admin_teachers_page()
 
     elif page == "Grade Tables":
         st.title("Grade Tables")
