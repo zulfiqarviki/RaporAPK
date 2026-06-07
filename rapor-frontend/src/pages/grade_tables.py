@@ -5,6 +5,7 @@ from src.api import admin as admin_api
 from src.api import grade_tables as grade_table_api
 from src.api.client import ApiError
 from src.auth.session import get_access_token, require_auth
+from src.pages.grade_table_detail import render_grade_table_detail_shell
 
 
 def _load_grade_tables(token: str) -> list[dict]:
@@ -64,6 +65,34 @@ def _render_grade_table_table(
         df[available_columns],
         use_container_width=True,
         hide_index=True,
+    )
+
+def _render_grade_table_detail_selector(
+    token: str,
+    grade_tables: list[dict],
+) -> None:
+    st.subheader("Detail Grade Table")
+
+    if not grade_tables:
+        st.info("Belum ada grade table yang bisa dibuka.")
+        return
+
+    grade_table_options = {
+        f"{grade_table['id']} - {grade_table['subject_name']}": grade_table["id"]
+        for grade_table in grade_tables
+    }
+
+    selected_label = st.selectbox(
+        "Pilih grade table",
+        options=list(grade_table_options.keys()),
+        key="grade_table_detail_selectbox",
+    )
+
+    selected_grade_table_id = grade_table_options[selected_label]
+
+    render_grade_table_detail_shell(
+        token=token,
+        grade_table_id=selected_grade_table_id,
     )
 
 
@@ -249,13 +278,20 @@ def render_grade_tables_page() -> None:
 
     st.divider()
 
-    tab_create, tab_update, tab_delete = st.tabs(
+    tab_detail, tab_create, tab_update, tab_delete = st.tabs(
         [
+            "Detail",
             "Tambah",
             "Edit",
             "Hapus",
         ]
     )
+
+    with tab_detail:
+        _render_grade_table_detail_selector(
+            token=token,
+            grade_tables=grade_tables,
+        )
 
     with tab_create:
         _render_create_grade_table_form(
