@@ -5,6 +5,7 @@ from src.pages.dashboard import render_dashboard_page
 from src.pages.login import render_login_page
 from src.ui.layout import render_sidebar
 from src.pages.admin_teachers import render_admin_teachers_page
+from src.pages.grade_tables import render_grade_tables_page
 
 
 st.set_page_config(
@@ -36,12 +37,10 @@ def main() -> None:
         render_admin_teachers_page()
 
     elif page == "Grade Tables":
-        st.title("Grade Tables")
-        st.info("Halaman grade table untuk admin akan dibuat pada langkah berikutnya.")
+        render_grade_tables_page()
 
     elif page == "My Grade Tables":
-        st.title("My Grade Tables")
-        st.info("Halaman grade table milik teacher akan dibuat pada langkah berikutnya.")
+        render_grade_tables_page()
 
 
 if __name__ == "__main__":
