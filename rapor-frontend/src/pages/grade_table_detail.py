@@ -4,6 +4,7 @@ from src.api import grade_tables as grade_table_api
 from src.api.client import ApiError
 from src.pages.students import render_students_page
 from src.pages.grade_components import render_grade_components_page
+from src.pages.scores import render_scores_page
 
 
 def _render_grade_table_header(grade_table: dict) -> None:
@@ -48,10 +49,13 @@ def _render_components_tab(
     )
 
 
-def _render_scores_tab(grade_table: dict) -> None:
-    st.info(
-        "Tab Scores akan dibuat setelah Students dan Components tersedia. "
-        "Nantinya tab ini memakai endpoint scores untuk grade table ini."
+def _render_scores_tab(
+    token: str,
+    grade_table: dict,
+) -> None:
+    render_scores_page(
+        token=token,
+        grade_table=grade_table,
     )
 
 
@@ -117,7 +121,10 @@ def render_grade_table_detail_shell(
     )
 
     with tab_scores:
-        _render_scores_tab(grade_table)
+        _render_scores_tab(
+            token=token,
+            grade_table=grade_table,
+    )
 
     with tab_results:
         _render_results_tab(grade_table)
