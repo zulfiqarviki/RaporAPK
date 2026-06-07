@@ -5,6 +5,8 @@ from src.api.client import ApiError
 from src.pages.students import render_students_page
 from src.pages.grade_components import render_grade_components_page
 from src.pages.scores import render_scores_page
+from src.pages.analytics import render_analytics_page
+from src.pages.results import render_results_page
 
 
 def _render_grade_table_header(grade_table: dict) -> None:
@@ -59,17 +61,23 @@ def _render_scores_tab(
     )
 
 
-def _render_results_tab(grade_table: dict) -> None:
-    st.info(
-        "Tab Results akan menampilkan final grade dari backend. "
-        "Perhitungan nilai akhir tetap dilakukan oleh backend."
+def _render_results_tab(
+    token: str,
+    grade_table: dict,
+) -> None:
+    render_results_page(
+        token=token,
+        grade_table=grade_table,
     )
 
 
-def _render_analytics_tab(grade_table: dict) -> None:
-    st.info(
-        "Tab Analytics akan menampilkan summary, distribution, student progress, "
-        "dan student comparison."
+def _render_analytics_tab(
+    token: str,
+    grade_table: dict,
+) -> None:
+    render_analytics_page(
+        token=token,
+        grade_table=grade_table,
     )
 
 
@@ -127,10 +135,16 @@ def render_grade_table_detail_shell(
     )
 
     with tab_results:
-        _render_results_tab(grade_table)
+        _render_results_tab(
+            token=token,
+            grade_table=grade_table,
+    )
 
     with tab_analytics:
-        _render_analytics_tab(grade_table)
+        _render_analytics_tab(
+            token=token,
+            grade_table=grade_table,
+    )
 
     with tab_excel:
         _render_excel_tab(grade_table)
