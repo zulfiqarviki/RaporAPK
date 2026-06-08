@@ -87,8 +87,3 @@ def render_results_page(
             f"Ada {len(incomplete_df)} student dengan missing score. "
             "Cek kolom missing_components untuk detailnya."
         )
-
-    st.markdown("#### Final Grade Chart")
-
-    chart_df = df[["student_name", "final_grade"]].set_index("student_name")
-    st.bar_chart(chart_df)
