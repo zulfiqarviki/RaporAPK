@@ -421,14 +421,44 @@ def _render_student_progress_tab(
 
         df = pd.DataFrame(progress["progress"])
 
+        df = df.sort_values(
+            by=["order_index", "component_id"],
+            ascending=[True, True],
+        )
+
         st.dataframe(
             df,
             use_container_width=True,
             hide_index=True,
         )
 
-        chart_df = df[["component_name", "score"]].set_index("component_name")
-        st.bar_chart(chart_df)
+        chart = (
+            alt.Chart(df)
+            .mark_bar()
+            .encode(
+                x=alt.X(
+                    "component_name:N",
+                    sort=list(df["component_name"]),
+                    title="Component",
+                ),
+                y=alt.Y(
+                    "score:Q",
+                    title="Score",
+                ),
+                tooltip=[
+                    "component_id",
+                    "component_name",
+                    "order_index",
+                    "score",
+                    "is_complete",
+                ],
+            )
+        )
+
+        st.altair_chart(
+            chart,
+            use_container_width=True,
+        )
 
 
 def _render_student_comparison_tab(

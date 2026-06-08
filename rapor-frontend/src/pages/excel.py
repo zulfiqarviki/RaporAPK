@@ -23,10 +23,6 @@ def _render_export_section(
     subject_name = grade_table["subject_name"]
 
     st.subheader("Export Excel")
-    st.caption(
-        "Export menghasilkan file .xlsx dari backend. "
-        "Sheet Scores menampilkan missing score sebagai blank, bukan 0."
-    )
 
     export_state_key = f"excel_export_bytes_{grade_table_id}"
     filename_state_key = f"excel_export_filename_{grade_table_id}"
@@ -169,11 +165,6 @@ def render_excel_page(
     token: str,
     grade_table: dict,
 ) -> None:
-    st.subheader("Excel")
-    st.caption(
-        "Excel export/import diproses oleh backend. "
-        "Frontend hanya menyediakan tombol download dan upload file."
-    )
 
     _render_export_section(
         token=token,
