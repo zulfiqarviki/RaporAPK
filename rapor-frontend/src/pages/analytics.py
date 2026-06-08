@@ -333,6 +333,7 @@ def _render_distribution_tab(
             st.caption(f"Component: {distribution['component_name']}")
 
         df = pd.DataFrame(distribution["distribution"])
+        df = df.sort_values("min")
 
         st.dataframe(
             df,
@@ -340,8 +341,32 @@ def _render_distribution_tab(
             hide_index=True,
         )
 
-        chart_df = df[["label", "count"]].set_index("label")
-        st.bar_chart(chart_df)
+        chart = (
+            alt.Chart(df)
+            .mark_bar()
+            .encode(
+                x=alt.X(
+                    "label:N",
+                    sort=list(df["label"]),
+                    title="Range",
+                ),
+                y=alt.Y(
+                    "count:Q",
+                    title="Count",
+                ),
+                tooltip=[
+                    "label",
+                    "min",
+                    "max",
+                    "count",
+                ],
+            )
+        )
+
+        st.altair_chart(
+            chart,
+            use_container_width=True,
+        )
 
 
 def _render_student_progress_tab(
