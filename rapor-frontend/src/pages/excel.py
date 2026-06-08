@@ -152,8 +152,6 @@ def _render_import_section(
 
             st.success("Excel berhasil diimport. Grade table baru telah dibuat.")
 
-            st.json(result)
-
             st.info(
                 "Buka kembali menu Grade Tables / My Grade Tables untuk melihat grade table hasil import."
             )
