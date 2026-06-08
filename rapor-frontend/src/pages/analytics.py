@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import altair as alt
 
 from src.api import analytics as analytics_api
 from src.api import grade_components as components_api
@@ -134,6 +135,7 @@ def _render_summary_tab(
         )
 
     df = pd.DataFrame(rows)
+    df = df.sort_values("order_index")
 
     st.dataframe(
         df,
@@ -142,8 +144,33 @@ def _render_summary_tab(
     )
 
     st.markdown("#### Average Score per Component")
-    chart_df = df[["component_name", "average_score"]].set_index("component_name")
-    st.bar_chart(chart_df)
+
+    chart = (
+        alt.Chart(df)
+        .mark_bar()
+        .encode(
+            x=alt.X(
+                "component_name:N",
+                sort=list(df["component_name"]),
+                title="Component",
+            ),
+            y=alt.Y(
+                "average_score:Q",
+                title="Average Score",
+            ),
+            tooltip=[
+                "component_name",
+                "order_index",
+                "average_score",
+                "missing_scores",
+            ],
+        )
+    )
+
+    st.altair_chart(
+        chart,
+        use_container_width=True,
+    )
 
 
 def _render_distribution_tab(
