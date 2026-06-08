@@ -16,6 +16,42 @@ DEFAULT_RANGES = [
     {"label": "90-100", "min": 90, "max": 100},
 ]
 
+def _validate_distribution_ranges(ranges: list[dict]) -> str | None:
+    if not ranges:
+        return "Minimal harus ada 1 range."
+
+    if len(ranges) > 10:
+        return "Maksimal hanya boleh ada 10 range."
+
+    labels = [str(item["label"]).strip() for item in ranges]
+
+    if any(not label for label in labels):
+        return "Label range tidak boleh kosong."
+
+    if len(labels) != len(set(labels)):
+        return "Label range tidak boleh duplikat."
+
+    if ranges[0]["min"] != 0:
+        return "Range pertama harus mulai dari 0."
+
+    if ranges[-1]["max"] != 100:
+        return "Range terakhir harus berakhir di 100."
+
+    for index, item in enumerate(ranges):
+        if item["min"] >= item["max"]:
+            return f"Range baris {index + 1}: min harus lebih kecil dari max."
+
+        if index > 0:
+            previous = ranges[index - 1]
+
+            if previous["max"] != item["min"]:
+                return (
+                    f"Range baris {index + 1} tidak continuous. "
+                    f"Nilai min harus sama dengan max range sebelumnya."
+                )
+
+    return None
+
 
 def _build_student_label(student: dict) -> str:
     student_number = student.get("student_number") or "-"
@@ -210,19 +246,71 @@ def _render_distribution_tab(
         )
         selected_component_id = component_options[selected_component_label]
 
+
+    st.markdown("#### Ranges")
+
     st.caption(
-        "Untuk tahap ini, frontend memakai range default: "
-        "0-60, 60-70, 70-80, 80-90, 90-100."
+        "Aturan: jumlah range 1–10, label unik, range pertama mulai dari 0, "
+        "range terakhir berakhir di 100, dan range harus continuous."
     )
 
-    if st.button("Generate Distribution"):
+    range_df = pd.DataFrame(DEFAULT_RANGES)
+
+    edited_range_df = st.data_editor(
+        range_df,
+        num_rows="dynamic",
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "label": st.column_config.TextColumn(
+                "Label",
+                required=True,
+            ),
+            "min": st.column_config.NumberColumn(
+                "Min",
+                min_value=0.0,
+                max_value=100.0,
+                step=1.0,
+                required=True,
+            ),
+            "max": st.column_config.NumberColumn(
+                "Max",
+                min_value=0.0,
+                max_value=100.0,
+                step=1.0,
+                required=True,
+            ),
+        },
+        key=f"distribution_ranges_{grade_table_id}_{target}_{selected_component_id}",
+    )
+
+    ranges = []
+
+    for _, row in edited_range_df.iterrows():
+        if pd.isna(row["label"]) or pd.isna(row["min"]) or pd.isna(row["max"]):
+            continue
+
+        ranges.append(
+            {
+                "label": str(row["label"]).strip(),
+                "min": float(row["min"]),
+                "max": float(row["max"]),
+            }
+        )
+
+    validation_error = _validate_distribution_ranges(ranges)
+
+    if validation_error:
+        st.warning(validation_error)
+
+    if st.button("Generate Distribution", disabled=validation_error is not None):
         try:
             distribution = analytics_api.get_distribution(
                 token=token,
                 grade_table_id=grade_table_id,
                 target=target,
                 component_id=selected_component_id,
-                ranges=DEFAULT_RANGES,
+                ranges=ranges,
             )
         except ApiError as error:
             st.error(error.detail)
